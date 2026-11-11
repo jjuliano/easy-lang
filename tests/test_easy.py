@@ -476,6 +476,41 @@ class ExampleTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(proc.stdout, "6\n21\n")
 
+    def test_explain_shows_each_step(self):
+        from easy import run
+
+        source = (ROOT / "examples" / "gcd.easy").read_text(encoding="utf-8")
+        result = run(source, explain=True)
+        self.assertEqual(result.output, ["6", "21"])
+        text = "\n".join(result.trace)
+        self.assertIn("+ procedure MAIN", text)
+        self.assertIn("procedure GCD(a=48, b=18)", text)
+        self.assertIn("r ← (a mod b) → 12", text)
+        self.assertIn("while (b ≠ 0) → false", text)
+        self.assertIn("return 6", text)
+        self.assertIn("output GCD(48, 18) → 6", text)
+        self.assertEqual(run(source).trace, [])
+
+    def test_cli_explain(self):
+        proc = subprocess.run(
+            [sys.executable, "-m", "easy", "--explain", "examples/gcd.easy"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(proc.stdout, "6\n21\n")
+        self.assertIn("procedure GCD(a=48, b=18)", proc.stderr)
+        dashed = subprocess.run(
+            [sys.executable, "-m", "easy", "-x", "examples/gcd.easy"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(dashed.returncode, 0, dashed.stderr)
+        self.assertEqual(dashed.stdout, "6\n21\n")
+        self.assertIn("+ procedure MAIN", dashed.stderr)
+
     def test_github_blob_link_names_the_raw_file(self):
         from easy.__main__ import as_fetch_url
 

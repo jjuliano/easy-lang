@@ -34,6 +34,12 @@ python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-a
 
 The insertion program prints `1 2 2 3`. The search program prints `3`, then `0`. If you skip the install, `python3 -m easy` stops with `No module named easy`.
 
+Add `--explain` to print each step before those lines. `-x` is the same flag. The steps go to standard error. The program's own lines stay on standard output.
+
+```
+python3 -m easy --explain https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/search.easy
+```
+
 From a clone of this repository, the same command works without installing, if you run it in the clone:
 
 ```

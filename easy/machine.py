@@ -64,19 +64,22 @@ class Frame:
 
 
 class Result:
-    def __init__(self, output, value, globals_):
+    def __init__(self, output, value, globals_, trace=None):
         self.output = output
         self.value = value
         self.globals = globals_
+        self.trace = trace or []
 
 
 class Machine:
-    def __init__(self, program, inputs, max_steps):
+    def __init__(self, program, inputs, max_steps, explain=False):
         self.program = program
         self.procs = program.procedures
         self.structures = program.structures
         self.inputs = list(inputs)
         self.max_steps = max_steps
+        self.explain = explain
+        self.trace = []
         self.steps = 0
         self.output = []
         self.globals = {}
@@ -96,6 +99,7 @@ class Machine:
                 self.pool_size = action[1]
             elif kind == "node":
                 self.layout = list(action[1])
+                self.note("node(" + ", ".join(action[1]) + ")")
             elif kind == "array":
                 self.declare_arrays(action[1], action[2], top_level=True)
         try:
@@ -108,7 +112,64 @@ class Machine:
         exported = {}
         for key, cell in self.globals.items():
             exported[self.spelling.get(key, key)] = cell.value
-        return Result(self.output, self.result_value, exported)
+        return Result(self.output, self.result_value, exported, self.trace)
+
+    def note(self, text):
+        if not self.explain:
+            return
+        depth = len(self.frames)
+        self.trace.append("+ " + ("  " * depth) + text)
+
+    def note_store(self, target, expr, value):
+        got = self.show(value)
+        if expr == got:
+            self.note(f"{target} ← {got}")
+        else:
+            self.note(f"{target} ← {expr} → {got}")
+
+    def render_dims(self, dims):
+        parts = []
+        for low, high in dims:
+            if low is None:
+                parts.append(self.render(high))
+            else:
+                parts.append(f"{self.render(low)}:{self.render(high)}")
+        return ", ".join(parts)
+
+    def render(self, expr):
+        kind = expr[0]
+        if kind == "num":
+            value = expr[1]
+            if isinstance(value, float) and value.is_integer():
+                return str(int(value))
+            return str(value)
+        if kind == "str":
+            return '"' + expr[1] + '"'
+        if kind == "nil":
+            return "nil"
+        if kind == "bool":
+            return "true" if expr[1] else "false"
+        if kind == "var":
+            return expr[1]
+        if kind == "unary":
+            op = expr[1]
+            inner = self.render(expr[2])
+            if op == "not":
+                return f"not {inner}"
+            if op == "-":
+                return f"−{inner}"
+            return f"+{inner}"
+        if kind == "binary":
+            symbol = {"<>": "≠", "<=": "≤", ">=": "≥", "*": "×", "-": "−"}.get(expr[1], expr[1])
+            return f"({self.render(expr[2])} {symbol} {self.render(expr[3])})"
+        if kind in ("floor", "ceil"):
+            return f"{kind}({self.render(expr[1])})"
+        if kind == "apply":
+            args = ", ".join(self.render(arg) for arg in expr[2])
+            return f"{self.render(expr[1])}({args})"
+        if kind == "slice":
+            return f"{self.render(expr[1])}({self.render(expr[2])}:{self.render(expr[3])})"
+        return kind
 
     def tick(self):
         self.steps += 1
@@ -126,42 +187,65 @@ class Machine:
                 pc += 1
                 continue
             if op == "jump":
+                if len(ins) > 2 and ins[2] == "goto":
+                    self.note(f"go to {ins[3]}")
+                elif len(ins) > 2 and ins[2] == "exit":
+                    self.note("exit")
                 pc = ins[1]
                 continue
             if op == "jf":
-                if not self.truth(self.eval(ins[1]), ins[1][-1]):
+                cond = self.eval(ins[1])
+                passed = self.truth(cond, ins[1][-1])
+                kind = ins[3] if len(ins) > 3 else "if"
+                self.note(f"{kind} {self.render(ins[1])} → {self.show(cond)}")
+                if not passed:
                     pc = ins[2]
                     continue
                 pc += 1
                 continue
             if op == "assign":
-                self.place(ins[1]).value = self.eval(ins[2])
+                value = self.eval(ins[2])
+                self.place(ins[1]).value = value
+                self.note_store(self.render(ins[1]), self.render(ins[2]), value)
             elif op == "call":
                 cells = self.cells_for(ins[1], ins[2], ins[3])
                 self.call_named(ins[1], cells, ins[3])
             elif op == "return":
                 if ins[1] is None:
+                    self.note("return")
                     return None
-                return self.eval(ins[1])
+                value = self.eval(ins[1])
+                self.note(f"return {self.show(value)}")
+                return value
             elif op == "stop":
+                self.note("stop")
                 raise StopProgram()
             elif op == "output":
+                rendered = " ".join(self.render(item) for item in ins[1])
                 parts = [self.show(self.eval(item)) for item in ins[1]]
-                self.output.append(" ".join(parts))
+                line = " ".join(parts)
+                self.output.append(line)
+                if rendered == line:
+                    self.note(f"output {line}")
+                else:
+                    self.note(f"output {rendered} → {line}")
             elif op == "input":
                 self.do_input(ins[1], ins[2])
             elif op == "array":
                 self.declare_arrays(ins[1], ins[2], top_level=False)
             elif op == "node":
                 self.layout = list(ins[1])
+                self.note("node(" + ", ".join(ins[1]) + ")")
             elif op == "new":
                 self.instantiate(ins[1], ins[2], ins[3], ins[4])
             elif op == "for_init":
                 self.for_init(ins, temps)
             elif op == "for_test":
                 if not self.for_continues(ins, temps):
+                    self.note(f"for {ins[1]} ends")
                     pc = ins[3]
                     continue
+                self.note(f"for {ins[1]} = {self.show(self.lookup(ins[1], False, ins[4]).value)}")
             elif op == "for_inc":
                 self.for_inc(ins, temps)
             else:
@@ -185,6 +269,10 @@ class Machine:
             raise EasyError("for step is 0", line)
         temps[slot] = (finish, step)
         self.place(("var", var, line)).value = start
+        span = f"for {var} ← {self.show(start)} to {self.show(finish)}"
+        if step != 1:
+            span += f" by {self.show(step)}"
+        self.note(span)
 
     def for_continues(self, ins, temps):
         var, slot, line = ins[1], ins[2], ins[4]
@@ -199,6 +287,7 @@ class Machine:
         _finish, step = temps[slot]
         cell = self.lookup(var, False, line)
         cell.value = self.as_number(cell.value, line) + step
+        self.note(f"{var} ← {self.show(cell.value)}")
 
     def call_named(self, name, cells, line):
         self.tick()
@@ -227,6 +316,13 @@ class Machine:
             originals.append(cell)
         for cell in originals:
             self.open_structure(frame, cell)
+        shown = []
+        for param, cell in zip(proc.params, cells):
+            shown.append(f"{param}={self.show(cell.value)}")
+        if shown:
+            self.note(f"procedure {proc.name}({', '.join(shown)})")
+        else:
+            self.note(f"procedure {proc.name}")
         self.frames.append(frame)
         try:
             return self.execute(proc.code)
@@ -278,6 +374,7 @@ class Machine:
             raise EasyError("GETNODE: unsuccessful allocation", line)
         self.nodes[addr] = Node(self.layout)
         cells[0].value = addr
+        self.note(f"GETNODE → {addr}")
 
     def retnode(self, cells, line):
         if len(cells) != 1:
@@ -288,6 +385,7 @@ class Machine:
             raise EasyError("RETNODE: not a live node", line)
         node.alive = False
         self.free.append(addr)
+        self.note(f"RETNODE {addr}")
 
     def instantiate(self, type_name, var_name, arg_exprs, line):
         stype = self.structures.get(type_name.lower())
@@ -322,6 +420,7 @@ class Machine:
             self.frames[-1].cells[key] = cell
         else:
             self.globals[key] = cell
+        self.note(f"{stype.name} {var_name}")
 
     def declare_arrays(self, specs, line, top_level):
         for name, dims in specs:
@@ -331,6 +430,7 @@ class Machine:
                 if not isinstance(frame.cells[key].value, Array):
                     raise EasyError(f"{name} is not an array", line)
                 self.make_array(dims, line)
+                self.note(f"array {name}({self.render_dims(dims)})")
                 continue
             array = self.make_array(dims, line)
             cell = Cell(array)
@@ -339,6 +439,7 @@ class Machine:
                 self.globals[key] = cell
             else:
                 frame.cells[key] = cell
+            self.note(f"array {name}({self.render_dims(dims)})")
 
     def make_array(self, dims, line):
         bounds = []
@@ -355,7 +456,9 @@ class Machine:
             if target[0] == "slice":
                 self.read_slice(target)
             else:
-                self.place(target).value = self.next_input(target[-1])
+                token = self.next_input(target[-1])
+                self.place(target).value = token
+                self.note(f"{self.render(target)} ← {self.show(token)}")
 
     def read_slice(self, expr):
         base, low_e, high_e, line = expr[1], expr[2], expr[3], expr[4]
@@ -365,7 +468,9 @@ class Machine:
         low = self.as_index(self.eval(low_e), line)
         high = self.as_index(self.eval(high_e), line)
         for index in range(low, high + 1):
-            value.cell_at([index], line).value = self.next_input(line)
+            token = self.next_input(line)
+            value.cell_at([index], line).value = token
+            self.note(f"{self.render(base)}({index}) ← {self.show(token)}")
 
     def next_input(self, line):
         if not self.inputs:
@@ -637,7 +742,7 @@ class Machine:
         return str(value)
 
 
-def run(source, inputs=None, max_steps=1_000_000):
-    machine = Machine(parse_source(source), inputs or [], max_steps)
+def run(source, inputs=None, max_steps=1_000_000, explain=False):
+    machine = Machine(parse_source(source), inputs or [], max_steps, explain=explain)
     machine.start()
     return machine.result()

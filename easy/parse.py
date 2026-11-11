@@ -596,10 +596,9 @@ def compile_body(body, line):
     for stmt in body:
         compile_stmt(stmt, code, loops, labels, gotos)
     for inst in gotos:
-        key = inst[1].lower()
+        key = inst[3].lower()
         if key not in labels:
-            raise EasyError(f"unknown label {inst[1]}", inst[2])
-        inst[0] = "jump"
+            raise EasyError(f"unknown label {inst[3]}", inst[4])
         inst[1] = labels[key]
     return code
 
@@ -624,7 +623,7 @@ def compile_stmt(stmt, code, loops, labels, gotos):
     elif kind == "assign":
         emit(code, ["assign", stmt[1], stmt[2], stmt[3]])
     elif kind == "if":
-        jf = emit(code, ["jf", stmt[1], None])
+        jf = emit(code, ["jf", stmt[1], None, "if"])
         compile_stmt(stmt[2], code, loops, labels, gotos)
         if stmt[3] is None:
             code[jf][2] = len(code)
@@ -637,7 +636,7 @@ def compile_stmt(stmt, code, loops, labels, gotos):
         end_jumps = []
         for arm in stmt[1]:
             if arm[0] == "when":
-                jf = emit(code, ["jf", arm[1], None])
+                jf = emit(code, ["jf", arm[1], None, "case"])
                 compile_stmt(arm[2], code, loops, labels, gotos)
                 end_jumps.append(emit(code, ["jump", None]))
                 code[jf][2] = len(code)
@@ -650,7 +649,7 @@ def compile_stmt(stmt, code, loops, labels, gotos):
     elif kind == "while":
         loops.append([])
         start = len(code)
-        jf = emit(code, ["jf", stmt[1], None])
+        jf = emit(code, ["jf", stmt[1], None, "while"])
         for inner in stmt[2]:
             compile_stmt(inner, code, loops, labels, gotos)
         emit(code, ["jump", start])
@@ -664,7 +663,7 @@ def compile_stmt(stmt, code, loops, labels, gotos):
         for inner in stmt[1]:
             compile_stmt(inner, code, loops, labels, gotos)
         # until cond: leave when cond is true, so jump back when it is false
-        emit(code, ["jf", stmt[2], start])
+        emit(code, ["jf", stmt[2], start, "until"])
         end = len(code)
         for index in loops.pop():
             code[index][1] = end
@@ -691,13 +690,13 @@ def compile_stmt(stmt, code, loops, labels, gotos):
         for index in loops.pop():
             code[index][1] = end
     elif kind == "goto":
-        inst = ["goto", stmt[1], stmt[2]]
+        inst = ["jump", None, "goto", stmt[1], stmt[2]]
         gotos.append(inst)
         emit(code, inst)
     elif kind == "exit":
         if not loops:
             raise EasyError("exit is outside a loop", stmt[1])
-        loops[-1].append(emit(code, ["jump", None]))
+        loops[-1].append(emit(code, ["jump", None, "exit"]))
     elif kind == "input":
         emit(code, ["input", stmt[1], stmt[2]])
     elif kind == "output":
