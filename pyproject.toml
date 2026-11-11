@@ -1,0 +1,18 @@
+[project]
+name = "easy-lang"
+version = "0.1.0"
+description = "Interpreter for Easy, the teaching notation used in Quiwa's Data Structures."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Joel Bryan Juliano", email = "joelbryan.juliano@gmail.com" }]
+
+[project.scripts]
+easy = "easy.__main__:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["easy*"]

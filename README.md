@@ -8,12 +8,27 @@ The interpreter is [jjuliano/easy-lang](https://github.com/jjuliano/easy-lang). 
 
 ## Run
 
-From this directory:
+Install once, from any directory:
 
 ```
-python3 -m easy examples/gcd.easy
-python3 -m unittest tests.test_easy
+pip install git+https://github.com/jjuliano/easy-lang.git
 ```
+
+Then run a file on your machine, or the link of a published one. A GitHub blob link is the file page. The interpreter reads the file itself.
+
+```
+python -m easy insertion.easy
+python -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
+```
+
+From a clone of this repository, the same command works without installing, if you run it in the clone:
+
+```
+python -m easy examples/gcd.easy
+python -m unittest tests.test_easy
+```
+
+Use `python3` when `python` is not the interpreter you want.
 
 If standard input is not a terminal, `input` reads its whitespace-separated tokens. From Python, `easy.run(source, inputs=["2", "oak"])` does the same and returns `.output`, `.value` (what `MAIN` returned), and `.globals`.
 

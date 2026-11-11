@@ -476,6 +476,42 @@ class ExampleTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(proc.stdout, "6\n21\n")
 
+    def test_github_blob_link_names_the_raw_file(self):
+        from easy.__main__ import as_fetch_url
+
+        blob = (
+            "https://github.com/jjuliano/datastructures/blob/main/"
+            "session03-algorithms/easy/insertion.easy"
+        )
+        self.assertEqual(
+            as_fetch_url(blob),
+            "https://raw.githubusercontent.com/jjuliano/datastructures/main/"
+            "session03-algorithms/easy/insertion.easy",
+        )
+        self.assertIsNone(as_fetch_url("insertion.easy"))
+
+    def test_cli_fetches_a_url(self):
+        import threading
+        from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), SimpleHTTPRequestHandler)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        host, port = server.server_address
+        try:
+            proc = subprocess.run(
+                [sys.executable, "-m", "easy", f"http://{host}:{port}/examples/gcd.easy"],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertEqual(proc.stdout, "6\n21\n")
+
     def test_cli_stdin_and_error(self):
         program = ROOT / "examples" / "_stdin.easy"
         program.write_text(
