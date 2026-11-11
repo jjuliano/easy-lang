@@ -1,0 +1,38 @@
+¤ head is the next to leave. tail is the last to arrive. Both are nil when the line is empty.
+
+node(info, link)
+
+procedure Enqueue(head, tail, x)
+call GETNODE(p)
+info(p) ← x
+link(p) ← nil
+if head = nil then [
+  head ← p
+  tail ← p
+] else [
+  link(tail) ← p
+  tail ← p
+]
+end Enqueue
+
+procedure Dequeue(head, tail, x)
+x ← info(head)
+old ← head
+head ← link(head)
+if head = nil then tail ← nil
+call RETNODE(old)
+end Dequeue
+
+procedure MAIN
+head ← nil
+tail ← nil
+call Enqueue(head, tail, 3)
+call Enqueue(head, tail, 1)
+call Enqueue(head, tail, 4)
+call Dequeue(head, tail, y)
+output y
+call Dequeue(head, tail, y)
+output y
+call Dequeue(head, tail, y)
+output y
+end MAIN

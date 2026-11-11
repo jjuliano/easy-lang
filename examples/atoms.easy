@@ -1,0 +1,36 @@
+¤ A list node has tag 1 and two links. An atom has tag 0 and a value.
+¤ (oak ash) prints the atoms in order.
+
+node(tag, info, head, tail)
+
+procedure Atom(x)
+call GETNODE(p)
+tag(p) ← 0
+info(p) ← x
+head(p) ← nil
+tail(p) ← nil
+return(p)
+end Atom
+
+procedure Cons(a, b)
+call GETNODE(p)
+tag(p) ← 1
+info(p) ← nil
+head(p) ← a
+tail(p) ← b
+return(p)
+end Cons
+
+procedure Atoms(p)
+if p = nil then return
+if tag(p) = 0 then output info(p)
+else [
+  call Atoms(head(p))
+  call Atoms(tail(p))
+]
+end Atoms
+
+procedure MAIN
+row ← Cons(Atom("oak"), Cons(Atom("ash"), nil))
+call Atoms(row)
+end MAIN

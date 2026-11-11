@@ -1,0 +1,46 @@
+¤ A max-heap in level order, indexes starting at 1. The left child of i is 2i.
+
+procedure Sift(a, start, last)
+array a(1:last)
+root ← start
+while 2 * root <= last do
+  child ← 2 * root
+  if child < last and a(child) < a(child + 1) then child ← child + 1
+  if a(root) < a(child) then [
+    hold ← a(root)
+    a(root) ← a(child)
+    a(child) ← hold
+    root ← child
+  ] else exit
+endwhile
+end Sift
+
+procedure Heapify(a, n)
+array a(1:n)
+for start ← floor(n / 2) to 1 by -1 do
+  call Sift(a, start, n)
+endfor
+end Heapify
+
+procedure HeapSort(a, n)
+array a(1:n)
+call Heapify(a, n)
+for hi ← n to 2 by -1 do
+  hold ← a(1)
+  a(1) ← a(hi)
+  a(hi) ← hold
+  call Sift(a, 1, hi - 1)
+endfor
+end HeapSort
+
+procedure MAIN
+array row(1:4)
+row(1) ← 4
+row(2) ← 1
+row(3) ← 3
+row(4) ← 2
+call Heapify(row, 4)
+output row(1) row(2) row(3) row(4)
+call HeapSort(row, 4)
+output row(1) row(2) row(3) row(4)
+end MAIN

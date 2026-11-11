@@ -1,4 +1,4 @@
-¤ Towers of Hanoi. Each line names the source peg and the destination peg.
+¤ Each line names the peg the disk leaves and the peg it lands on.
 
 procedure Move(n, src, dst, spare)
 if n = 1 then output src dst

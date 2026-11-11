@@ -1,0 +1,15 @@
+¤ Remainder loop. The arguments are copies, so the caller's names stay put.
+
+procedure GCD(a, b)
+while b ≠ 0 do
+  r ← a mod b
+  a ← b
+  b ← r
+endwhile
+return(a)
+end GCD
+
+procedure MAIN
+output GCD(48, 18)
+output GCD(608, 133)
+end MAIN

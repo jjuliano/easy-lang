@@ -1,10 +1,21 @@
-¤ Search a sorted row. Returns the index, or 0 when the key is absent.
+¤ A sorted table. Linear search walks from the left. Binary search halves the range.
+¤ Both return the index of 7, which is 3, and 0 when 3 is absent.
 
-procedure Find(a, n, key)
+procedure Linear(a, n, key)
+array a(1:n)
+i ← 1
+while i <= n do
+  if a(i) = key then return(i)
+  i ← i + 1
+endwhile
+return(0)
+end Linear
+
+procedure Binary(a, n, key)
 array a(1:n)
 lo ← 1
 hi ← n
-while lo ≤ hi do
+while lo <= hi do
   mid ← floor((lo + hi) / 2)
   case
   : key = a(mid): return(mid)
@@ -13,7 +24,7 @@ while lo ≤ hi do
   endcase
 endwhile
 return(0)
-end Find
+end Binary
 
 procedure MAIN
 array row(1:5)
@@ -22,6 +33,8 @@ row(2) ← 4
 row(3) ← 7
 row(4) ← 9
 row(5) ← 11
-output Find(row, 5, 7)
-output Find(row, 5, 3)
+output Linear(row, 5, 7)
+output Linear(row, 5, 3)
+output Binary(row, 5, 7)
+output Binary(row, 5, 3)
 end MAIN

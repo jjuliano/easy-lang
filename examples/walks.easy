@@ -1,0 +1,41 @@
+¤ The sample tree: 1 has children 2 and 3, and 2 has children 4 and 5.
+¤ Height counts nodes. This tree's height is 3. Preorder visits a node before its children.
+
+node(info, left, right)
+
+procedure Make(x, l, r)
+call GETNODE(p)
+info(p) ← x
+left(p) ← l
+right(p) ← r
+return(p)
+end Make
+
+procedure Pre(p, order, k)
+if p = nil then return
+k ← k + 1
+order(k) ← info(p)
+call Pre(left(p), order, k)
+call Pre(right(p), order, k)
+end Pre
+
+procedure Height(p, lh, rh)
+if p = nil then return(0)
+lh ← Height(left(p), 0, 0)
+rh ← Height(right(p), 0, 0)
+if lh > rh then return(lh + 1)
+else return(rh + 1)
+end Height
+
+procedure MAIN
+d ← Make(4, nil, nil)
+e ← Make(5, nil, nil)
+b ← Make(2, d, e)
+c ← Make(3, nil, nil)
+a ← Make(1, b, c)
+array order(1:5)
+k ← 0
+call Pre(a, order, k)
+output order(1) order(2) order(3) order(4) order(5)
+output Height(a, 0, 0)
+end MAIN

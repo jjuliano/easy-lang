@@ -1,0 +1,30 @@
+¤ The same pile as a chain. The link of the last node is nil.
+
+node(info, link)
+
+procedure Push(top, x)
+call GETNODE(p)
+info(p) ← x
+link(p) ← top
+top ← p
+end Push
+
+procedure Pop(top, x)
+x ← info(top)
+old ← top
+top ← link(top)
+call RETNODE(old)
+end Pop
+
+procedure MAIN
+top ← nil
+call Push(top, 3)
+call Push(top, 1)
+call Push(top, 4)
+call Pop(top, y)
+output y
+call Pop(top, y)
+output y
+call Pop(top, y)
+output y
+end MAIN

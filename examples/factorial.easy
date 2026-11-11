@@ -1,0 +1,10 @@
+¤ 5! is 120. Each call keeps its own n.
+
+procedure Fact(n)
+if n = 0 then return(1)
+else return(n * Fact(n - 1))
+end Fact
+
+procedure MAIN
+output Fact(5)
+end MAIN

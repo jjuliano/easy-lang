@@ -1,0 +1,32 @@
+¤ A fixed ring. front is the next value to leave. count is how many sit in the ring.
+
+procedure Enqueue(q, n, front, count, x)
+array q(1:n)
+if count = n then [ output "full"; stop ]
+slot ← ((front - 1 + count) mod n) + 1
+q(slot) ← x
+count ← count + 1
+end Enqueue
+
+procedure Dequeue(q, n, front, count, x)
+array q(1:n)
+if count = 0 then [ output "empty"; stop ]
+x ← q(front)
+front ← (front mod n) + 1
+count ← count - 1
+end Dequeue
+
+procedure MAIN
+array q(1:4)
+front ← 1
+count ← 0
+call Enqueue(q, 4, front, count, 3)
+call Enqueue(q, 4, front, count, 1)
+call Enqueue(q, 4, front, count, 4)
+call Dequeue(q, 4, front, count, y)
+output y
+call Dequeue(q, 4, front, count, y)
+output y
+call Dequeue(q, 4, front, count, y)
+output y
+end MAIN

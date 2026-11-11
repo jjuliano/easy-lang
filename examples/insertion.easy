@@ -1,0 +1,26 @@
+¤ Shift the held value left until the prefix is in order.
+
+procedure Sort(a, n)
+array a(1:n)
+i ← 2
+while i <= n do
+  held ← a(i)
+  j ← i
+  while j > 1 and a(j - 1) > held do
+    a(j) ← a(j - 1)
+    j ← j - 1
+  endwhile
+  a(j) ← held
+  i ← i + 1
+endwhile
+end Sort
+
+procedure MAIN
+array row(1:4)
+row(1) ← 3
+row(2) ← 1
+row(3) ← 2
+row(4) ← 2
+call Sort(row, 4)
+output row(1) row(2) row(3) row(4)
+end MAIN

@@ -1,0 +1,32 @@
+¤ Division by 7. 23 lands in slot 2. 7 and 14 both land in slot 0, so they share a chain.
+
+node(info, link)
+
+procedure Slot(key, m)
+return(key mod m)
+end Slot
+
+procedure Put(head, key)
+array head(0:6)
+b ← key mod 7
+call GETNODE(p)
+info(p) ← key
+link(p) ← head(b)
+head(b) ← p
+end Put
+
+procedure MAIN
+output Slot(23, 7)
+array head(0:6)
+i ← 0
+while i <= 6 do
+  head(i) ← nil
+  i ← i + 1
+endwhile
+call Put(head, 7)
+call Put(head, 14)
+p ← head(0)
+output info(p)
+p ← link(p)
+output info(p)
+end MAIN
