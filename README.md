@@ -8,10 +8,10 @@ The interpreter is [jjuliano/easy-lang](https://github.com/jjuliano/easy-lang). 
 
 ## Run
 
-Install once, for the same `python3` that will run the program:
+Homebrew's Python, and some others, refuse `python3 -m pip install` and report `externally-managed-environment`. Install once with the script below. It builds a private environment at `~/.easy-lang` and links that copy onto this `python3`. It does not change Homebrew's packages.
 
 ```
-python3 -m pip install --user git+https://github.com/jjuliano/easy-lang.git
+curl -fsSL -A easy-lang https://raw.githubusercontent.com/jjuliano/easy-lang/main/install.py | python3
 ```
 
 Then run a file on your machine, or the link of a published one. A GitHub blob link is the file page. The interpreter reads the file itself.
@@ -21,7 +21,7 @@ python3 -m easy insertion.easy
 python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
 ```
 
-`pip install` by itself can land in a different Python. `python3 -m easy` then stops with `No module named easy`. Use `python3` in both commands. If your machine has `python` and not `python3`, use `python` in both.
+Without that install, `python3 -m easy` stops with `No module named easy`. If the command on your machine is `python` and not `python3`, pipe the installer into `python` and run `python -m easy`.
 
 From a clone of this repository, the same command works without installing, if you run it in the clone:
 

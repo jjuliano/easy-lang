@@ -18,7 +18,8 @@ usage: python3 -m easy FILE
 
 FILE is a program on your machine. URL is an http or https link.
 A GitHub "blob" link is read as the file itself.
-Install once with: python3 -m pip install --user git+https://github.com/jjuliano/easy-lang.git
+Install once with:
+  curl -fsSL -A easy-lang https://raw.githubusercontent.com/jjuliano/easy-lang/main/install.py | python3
 
   python3 -m easy insertion.easy
   python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
