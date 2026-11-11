@@ -6,22 +6,33 @@ This program runs those statement forms. It does not contain the textbook. The e
 
 The interpreter is [jjuliano/easy-lang](https://github.com/jjuliano/easy-lang). It is MIT, copyright Joel Bryan Juliano. Procedures for the fifteen sessions live in [jjuliano/datastructures](https://github.com/jjuliano/datastructures), in each session's `easy/` folder. The examples in this repository are smaller checks.
 
-## Run
+## Install
 
-Homebrew's Python, and some others, refuse `python3 -m pip install` and report `externally-managed-environment`. Install once with the script below. It builds a private environment at `~/.easy-lang` and links that copy onto this `python3`. It does not change Homebrew's packages.
+Install once. Homebrew's Python refuses this line and reports `externally-managed-environment`:
+
+```
+python3 -m pip install --user git+https://github.com/jjuliano/easy-lang.git
+```
+
+Do not pass `--break-system-packages`. Use the installer instead. It builds a private environment at `~/.easy-lang` and links Easy onto this `python3`. Homebrew's packages stay as they are.
 
 ```
 curl -fsSL -A easy-lang https://raw.githubusercontent.com/jjuliano/easy-lang/main/install.py | python3
 ```
 
-Then run a file on your machine, or the link of a published one. A GitHub blob link is the file page. The interpreter reads the file itself.
+If the command on your machine is `python` and not `python3`, pipe that installer into `python`.
+
+## Run
+
+After the install, run a file or a link from any directory. A GitHub blob link is the file page. The interpreter reads the file itself.
 
 ```
 python3 -m easy insertion.easy
 python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
+python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/search.easy
 ```
 
-Without that install, `python3 -m easy` stops with `No module named easy`. If the command on your machine is `python` and not `python3`, pipe the installer into `python` and run `python -m easy`.
+The insertion program prints `1 2 2 3`. The search program prints `3`, then `0`. If you skip the install, `python3 -m easy` stops with `No module named easy`.
 
 From a clone of this repository, the same command works without installing, if you run it in the clone:
 

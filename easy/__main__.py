@@ -23,6 +23,7 @@ Install once with:
 
   python3 -m easy insertion.easy
   python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
+  python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/search.easy
 """
 
 MAX_BYTES = 1_000_000
