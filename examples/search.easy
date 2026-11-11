@@ -1,0 +1,27 @@
+¤ Search a sorted row. Returns the index, or 0 when the key is absent.
+
+procedure Find(a, n, key)
+array a(1:n)
+lo ← 1
+hi ← n
+while lo ≤ hi do
+  mid ← floor((lo + hi) / 2)
+  case
+  : key = a(mid): return(mid)
+  : key > a(mid): lo ← mid + 1
+  : else: hi ← mid - 1
+  endcase
+endwhile
+return(0)
+end Find
+
+procedure MAIN
+array row(1:5)
+row(1) ← 2
+row(2) ← 4
+row(3) ← 7
+row(4) ← 9
+row(5) ← 11
+output Find(row, 5, 7)
+output Find(row, 5, 3)
+end MAIN

@@ -1,0 +1,33 @@
+¤ An array pile. Passing pile opens slot, top, and n in the callee.
+
+structure Pile(n) = [slot(1:n), top]
+
+procedure Init(p)
+top ← 0
+end Init
+
+procedure Push(p, x)
+if top = n then [ output "full"; stop ]
+top ← top + 1
+slot(top) ← x
+end Push
+
+procedure Pop(p, x)
+if top = 0 then [ output "empty"; stop ]
+x ← slot(top)
+top ← top - 1
+end Pop
+
+procedure MAIN
+Pile pile(4)
+call Init(pile)
+call Push(pile, 5)
+call Push(pile, 8)
+call Push(pile, 13)
+call Pop(pile, y)
+output y
+call Pop(pile, y)
+output y
+call Pop(pile, y)
+output y
+end MAIN

@@ -1,0 +1,20 @@
+¤ Three nodes in a line. Addresses start at 1. Λ is nil.
+
+node(info, link)
+
+procedure MAIN
+call GETNODE(a)
+call GETNODE(b)
+call GETNODE(c)
+info(a) ← "oak"
+link(a) ← b
+info(b) ← "ash"
+link(b) ← c
+info(c) ← "elm"
+link(c) ← nil
+p ← a
+while p ≠ nil do
+  output info(p)
+  p ← link(p)
+endwhile
+end MAIN

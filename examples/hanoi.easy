@@ -1,0 +1,14 @@
+¤ Towers of Hanoi. Each line names the source peg and the destination peg.
+
+procedure Move(n, src, dst, spare)
+if n = 1 then output src dst
+else [
+  call Move(n - 1, src, spare, dst)
+  output src dst
+  call Move(n - 1, spare, dst, src)
+]
+end Move
+
+procedure MAIN
+call Move(3, "A", "B", "C")
+end MAIN
