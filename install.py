@@ -72,7 +72,9 @@ def link_package(venv: Path) -> Path:
 
 def main() -> None:
     python = ensure_venv(HOME_VENV)
-    subprocess.check_call([str(python), "-m", "pip", "install", "--upgrade", PACKAGE])
+    subprocess.check_call(
+        [str(python), "-m", "pip", "install", "--upgrade", "--force-reinstall", PACKAGE]
+    )
     link = link_package(HOME_VENV)
     print(f"Installed for {sys.executable}")
     print(f"Linked {link}")
