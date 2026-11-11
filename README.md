@@ -34,11 +34,32 @@ python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-a
 
 The insertion program prints `1 2 2 3`. The search program prints `3`, then `0`. If you skip the install, `python3 -m easy` stops with `No module named easy`.
 
-Add `--explain` to print each step before those lines. `-x` is the same flag. The steps go to standard error. The program's own lines stay on standard output.
+## See each step
+
+Put `--explain` before the file or the link. `-x` is the same flag. Leave it off when you only want the program's lines.
 
 ```
 python3 -m easy --explain https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/search.easy
+python3 -m easy -x insertion.easy
 ```
+
+The steps come first, on standard error. Each one starts with `+`. A step inside a procedure is indented under that procedure's name. `←` stores a value. `→` is the value that step just produced. `while` and `case` end in `→ true` or `→ false`. The program's own lines follow, on standard output.
+
+```
++ procedure MAIN
++   procedure Find(a=array, n=5, key=7)
++     lo ← 1
++     hi ← n → 5
++     while (lo ≤ hi) → true
++     mid ← floor(((lo + hi) / 2)) → 3
++     case (key = a(mid)) → true
++     return 3
++   output Find(row, 5, 7) → 3
+3
+0
+```
+
+The last two lines are the program. The step above `3` says `return 3`. If the command prints `usage:` and stops, run the installer again.
 
 From a clone of this repository, the same command works without installing, if you run it in the clone:
 
@@ -47,7 +68,7 @@ python3 -m easy examples/gcd.easy
 python3 -m unittest tests.test_easy
 ```
 
-If standard input is not a terminal, `input` reads its whitespace-separated tokens. From Python, `easy.run(source, inputs=["2", "oak"])` does the same and returns `.output`, `.value` (what `MAIN` returned), and `.globals`.
+If standard input is not a terminal, `input` reads its whitespace-separated tokens. From Python, `easy.run(source, inputs=["2", "oak"], explain=True)` does the same. `.output` is the program's lines, `.trace` is the steps, `.value` is what `MAIN` returned, and `.globals` holds the global cells.
 
 ## Notation
 

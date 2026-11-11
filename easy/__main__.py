@@ -19,7 +19,8 @@ usage: python3 -m easy FILE
 
 FILE is a program on your machine. URL is an http or https link.
 A GitHub "blob" link is read as the file itself.
---explain, or -x, prints each step first. The program's own lines follow.
+--explain, or -x, prints each step first. A step starts with +.
+← stores a value. → is the value just produced. The program's own lines follow.
 Install once with:
   curl -fsSL -A easy-lang https://raw.githubusercontent.com/jjuliano/easy-lang/main/install.py | python3
 
