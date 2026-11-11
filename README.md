@@ -8,27 +8,27 @@ The interpreter is [jjuliano/easy-lang](https://github.com/jjuliano/easy-lang). 
 
 ## Run
 
-Install once, from any directory:
+Install once, for the same `python3` that will run the program:
 
 ```
-pip install git+https://github.com/jjuliano/easy-lang.git
+python3 -m pip install --user git+https://github.com/jjuliano/easy-lang.git
 ```
 
 Then run a file on your machine, or the link of a published one. A GitHub blob link is the file page. The interpreter reads the file itself.
 
 ```
-python -m easy insertion.easy
-python -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
+python3 -m easy insertion.easy
+python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
 ```
+
+`pip install` by itself can land in a different Python. `python3 -m easy` then stops with `No module named easy`. Use `python3` in both commands. If your machine has `python` and not `python3`, use `python` in both.
 
 From a clone of this repository, the same command works without installing, if you run it in the clone:
 
 ```
-python -m easy examples/gcd.easy
-python -m unittest tests.test_easy
+python3 -m easy examples/gcd.easy
+python3 -m unittest tests.test_easy
 ```
-
-Use `python3` when `python` is not the interpreter you want.
 
 If standard input is not a terminal, `input` reads its whitespace-separated tokens. From Python, `easy.run(source, inputs=["2", "oak"])` does the same and returns `.output`, `.value` (what `MAIN` returned), and `.globals`.
 
