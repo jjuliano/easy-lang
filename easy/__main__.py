@@ -19,16 +19,21 @@ USAGE = """\
 usage: python3 -m easy FILE
        python3 -m easy URL
        python3 -m easy --explain FILE
+       python3 -m easy --interview FILE
 
 FILE is a program on your machine. URL is an http or https link.
 A GitHub "blob" link is read as the file itself.
 --explain, or -x, prints each step first. A step starts with +.
 ← stores a value. → is the value just produced. The program's own lines follow.
+--interview prints a short bullet list you can give in an interview:
+what it is, the key steps, the time and space cost, and what to watch for.
+It does not run the program.
 Install once with:
   curl -fsSL -A easy-lang https://raw.githubusercontent.com/jjuliano/easy-lang/main/install.py | python3
 
   python3 -m easy insertion.easy
   python3 -m easy --explain https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/search.easy
+  python3 -m easy --interview examples/stack.easy
 """
 
 MAX_BYTES = 1_000_000

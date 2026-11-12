@@ -600,8 +600,13 @@ class ExampleTests(unittest.TestCase):
         stack = (ROOT / "examples" / "stack.easy").read_text(encoding="utf-8")
         text = explain_interview(stack, name="stack.easy")
         self.assertIn("How to explain it in an interview: An array stack", text)
-        self.assertIn("last in, first out", text.lower())
+        self.assertIn("- What it is: A stack is last in, first out", text)
+        self.assertIn("- Key steps:", text)
+        self.assertIn("  - To push,", text)
+        self.assertIn("  - To pop,", text)
+        self.assertIn("- Time and space:", text)
         self.assertIn("O(1)", text)
+        self.assertIn("- Watch for:", text)
         self.assertIn("overflow", text.lower())
         self.assertIn("underflow", text.lower())
         pile = (ROOT / "examples" / "pile.easy").read_text(encoding="utf-8")
@@ -630,9 +635,10 @@ class ExampleTests(unittest.TestCase):
             "end MAIN\n"
         )
         text = explain_interview(source, name="unused.easy")
-        self.assertIn("This toy just prints a number.", text)
-        self.assertIn("Key steps: Store 1, then print it.", text)
-        self.assertIn("O(1) time and space.", text)
+        self.assertIn("- What it is: This toy just prints a number.", text)
+        self.assertIn("- Key steps: Store 1, then print it.", text)
+        self.assertIn("- Time and space: O(1) time and space.", text)
+        self.assertIn("- Watch for: Nothing much, it is a toy.", text)
 
     def test_interview_unknown_program(self):
         source = "procedure MAIN\noutput 1\nend MAIN\n"
@@ -648,6 +654,8 @@ class ExampleTests(unittest.TestCase):
         )
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn("How to explain it in an interview: An array stack", proc.stdout)
+        self.assertIn("- What it is:", proc.stdout)
+        self.assertIn("- Key steps:", proc.stdout)
         self.assertNotIn("13", proc.stdout)
         self.assertEqual(proc.stderr, "")
         paths = subprocess.run(

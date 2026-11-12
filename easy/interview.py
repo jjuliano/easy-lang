@@ -1,8 +1,8 @@
 """Interview explainers for Easy programs.
 
-`python3 -m easy --interview FILE` prints a plain-words answer you can give
-in an interview: what the program does, the key steps, the time and space
-cost, and what to watch for.
+`python3 -m easy --interview FILE` prints a short bullet list you can give
+in an interview: what it is, the key steps, the time and space cost, and
+what to watch for.
 
 Explainers are looked up from a catalog of the examples in this repository
 (and of the session listings in the data-structures book). A program may
@@ -14,6 +14,10 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
+
+# Split on a period followed by a new sentence, so "Key steps" can
+# become sub-bullets when the steps are already written as sentences.
+_SENTENCE_SPLIT = re.compile(r"(?<=\.)\s+(?=[A-Z])")
 
 
 class InterviewError(Exception):
@@ -455,8 +459,29 @@ def lookup(source: str, name: str | None = None) -> list[Explainer]:
     return _catalog_matches(source, name)
 
 
+def _sentences(text: str) -> list[str]:
+    """Split prose into sentences, keeping each closing period."""
+    text = text.strip()
+    if not text:
+        return []
+    return [part.strip() for part in _SENTENCE_SPLIT.split(text) if part.strip()]
+
+
+def _bullet(label: str, text: str, *, sub: bool = False) -> list[str]:
+    """Format one labeled part as a bullet, with sub-bullets if natural."""
+    text = text.strip()
+    if not text:
+        return []
+    points = _sentences(text) if sub else [text]
+    if len(points) <= 1:
+        return [f"- {label}: {points[0] if points else text}"]
+    lines = [f"- {label}:"]
+    lines.extend(f"  - {point}" for point in points)
+    return lines
+
+
 def format_explainer(entry: Explainer, heading: bool = True) -> str:
-    """Format one explainer as plain words."""
+    """Format one explainer as a short bullet list."""
     parts: list[str] = []
     if heading:
         if entry.title and entry.id != "source":
@@ -464,16 +489,14 @@ def format_explainer(entry: Explainer, heading: bool = True) -> str:
         else:
             parts.append("How to explain it in an interview")
         parts.append("")
-    parts.append(entry.does)
+    if entry.does:
+        parts.extend(_bullet("What it is", entry.does))
     if entry.steps:
-        parts.append("")
-        parts.append(f"Key steps: {entry.steps}")
+        parts.extend(_bullet("Key steps", entry.steps, sub=True))
     if entry.cost:
-        parts.append("")
-        parts.append(f"Time and space: {entry.cost}")
+        parts.extend(_bullet("Time and space", entry.cost))
     if entry.watch:
-        parts.append("")
-        parts.append(f"Watch for: {entry.watch}")
+        parts.extend(_bullet("Watch for", entry.watch))
     return "\n".join(parts).strip() + "\n"
 
 

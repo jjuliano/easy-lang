@@ -63,7 +63,12 @@ The last two lines are the program. The step above `3` says `return 3`. If the c
 
 ## Explain it for an interview
 
-`--interview` does not run the program. It prints a short, plain-words answer you can give in an interview: what the program does, the key steps, the time and space cost, and what to watch for.
+`--interview` does not run the program. It prints a short bullet list you can give in an interview:
+
+- What it is
+- Key steps (with a sub-bullet for each step, when the steps are already separate sentences)
+- Time and space
+- Watch for
 
 ```
 python3 -m easy --interview examples/stack.easy
