@@ -1,6 +1,8 @@
 """Run an Easy program from a file or a link.
 
     python3 -m easy insertion.easy
+    python3 -m easy --explain insertion.easy
+    python3 -m easy --interview insertion.easy
     python3 -m easy https://github.com/jjuliano/datastructures/blob/main/session03-algorithms/easy/insertion.easy
 """
 
@@ -10,6 +12,7 @@ import urllib.request
 from pathlib import Path
 from urllib.parse import urlparse
 
+from easy.interview import InterviewError, explain_interview
 from easy.machine import EasyError, run
 
 USAGE = """\
@@ -66,10 +69,13 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
     explain = False
+    interview = False
     specs = []
     for arg in argv[1:]:
         if arg in ("-x", "--explain"):
             explain = True
+        elif arg in ("--interview",):
+            interview = True
         elif arg in ("-h", "--help"):
             print(USAGE, file=sys.stderr, end="")
             return 0
@@ -78,6 +84,15 @@ def main(argv=None):
     if len(specs) != 1:
         print(USAGE, file=sys.stderr, end="")
         return 2
+    if interview:
+        try:
+            source = load_source(specs[0])
+            text_out = explain_interview(source, name=specs[0])
+        except (EasyError, InterviewError) as exc:
+            print(f"easy: {exc}", file=sys.stderr)
+            return 1
+        print(text_out, end="")
+        return 0
     supplied = []
     if not sys.stdin.isatty():
         supplied = sys.stdin.read().split()

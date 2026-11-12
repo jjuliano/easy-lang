@@ -7,6 +7,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from easy import EasyError, run
+from easy.interview import InterviewError, explain_interview, lookup
 from easy.lex import lex
 
 
@@ -459,7 +460,7 @@ class ExampleTests(unittest.TestCase):
             "gcd.easy": ["6", "21"],
             "stack.easy": ["13", "8", "5"],
             "links.easy": ["oak", "ash", "elm"],
-            "search.easy": ["3", "0"],
+            "search.easy": ["3", "0", "3", "0"],
             "hanoi.easy": ["A B", "A C", "B C", "A B", "C A", "C B", "A B"],
         }
         for name, want in expected.items():
@@ -574,6 +575,99 @@ class ExampleTests(unittest.TestCase):
             self.assertIn("easy:", bad.stderr)
         finally:
             program.unlink(missing_ok=True)
+
+
+    def test_interview_covers_every_example(self):
+        missing = []
+        for path in sorted((ROOT / "examples").glob("*.easy")):
+            source = path.read_text(encoding="utf-8")
+            matches = lookup(source, name=path.name)
+            if not matches:
+                missing.append(path.name)
+        self.assertEqual(missing, [])
+        search = lookup(
+            (ROOT / "examples" / "search.easy").read_text(encoding="utf-8"),
+            name="search.easy",
+        )
+        self.assertEqual([e.id for e in search], ["linear", "binary"])
+        bst = lookup(
+            (ROOT / "examples" / "bst.easy").read_text(encoding="utf-8"),
+            name="bst.easy",
+        )
+        self.assertEqual([e.id for e in bst], ["bst", "height"])
+
+    def test_interview_stack_and_paths(self):
+        stack = (ROOT / "examples" / "stack.easy").read_text(encoding="utf-8")
+        text = explain_interview(stack, name="stack.easy")
+        self.assertIn("How to explain it in an interview: An array stack", text)
+        self.assertIn("last in, first out", text.lower())
+        self.assertIn("O(1)", text)
+        self.assertIn("overflow", text.lower())
+        self.assertIn("underflow", text.lower())
+        pile = (ROOT / "examples" / "pile.easy").read_text(encoding="utf-8")
+        self.assertEqual(
+            [e.id for e in lookup(pile, name="pile.easy")],
+            ["stack"],
+        )
+        paths = (ROOT / "examples" / "paths.easy").read_text(encoding="utf-8")
+        text = explain_interview(paths, name="paths.easy")
+        self.assertIn("Dijkstra", text)
+        self.assertIn("O(n^2)", text)
+        self.assertIn("negative", text.lower())
+        self.assertIn("Kruskal", text)
+        self.assertIn("O(m log m)", text)
+        self.assertLess(text.index("Dijkstra"), text.index("Kruskal"))
+
+    def test_interview_comment_overrides_catalog(self):
+        source = (
+            "\N{CURRENCY SIGN} Interview: This toy just prints a number.\n"
+            "\N{CURRENCY SIGN} Key steps: Store 1, then print it.\n"
+            "\N{CURRENCY SIGN} Cost: O(1) time and space.\n"
+            "\N{CURRENCY SIGN} Watch: Nothing much, it is a toy.\n"
+            "\n"
+            "procedure MAIN\n"
+            "output 1\n"
+            "end MAIN\n"
+        )
+        text = explain_interview(source, name="unused.easy")
+        self.assertIn("This toy just prints a number.", text)
+        self.assertIn("Key steps: Store 1, then print it.", text)
+        self.assertIn("O(1) time and space.", text)
+
+    def test_interview_unknown_program(self):
+        source = "procedure MAIN\noutput 1\nend MAIN\n"
+        with self.assertRaises(InterviewError):
+            explain_interview(source, name="mystery.easy")
+
+    def test_cli_interview(self):
+        proc = subprocess.run(
+            [sys.executable, "-m", "easy", "--interview", "examples/stack.easy"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        self.assertIn("How to explain it in an interview: An array stack", proc.stdout)
+        self.assertNotIn("13", proc.stdout)
+        self.assertEqual(proc.stderr, "")
+        paths = subprocess.run(
+            [sys.executable, "-m", "easy", "--interview", "examples/paths.easy"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(paths.returncode, 0, paths.stderr)
+        self.assertIn("Dijkstra", paths.stdout)
+        self.assertIn("Kruskal", paths.stdout)
+        missing = subprocess.run(
+            [sys.executable, "-m", "easy", "--interview", "examples/_none.easy"],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(missing.returncode, 1)
+        self.assertIn("easy:", missing.stderr)
+
 
 
 if __name__ == "__main__":

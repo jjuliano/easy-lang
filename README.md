@@ -61,6 +61,19 @@ The steps come first, on standard error. Each one starts with `+`. A step inside
 
 The last two lines are the program. The step above `3` says `return 3`. If the command prints `usage:` and stops, run the installer again.
 
+## Explain it for an interview
+
+`--interview` does not run the program. It prints a short, plain-words answer you can give in an interview: what the program does, the key steps, the time and space cost, and what to watch for.
+
+```
+python3 -m easy --interview examples/stack.easy
+python3 -m easy --interview examples/paths.easy
+python3 -m easy --interview https://github.com/jjuliano/datastructures/blob/main/session04-stacks/easy/pile.easy
+```
+
+The tool looks the program up in a catalog of the examples in this repository and of the session listings in the data-structures book. A program may also carry its own explainer in comments that start with `¤ Interview:`.
+
+
 From a clone of this repository, the same command works without installing, if you run it in the clone:
 
 ```
